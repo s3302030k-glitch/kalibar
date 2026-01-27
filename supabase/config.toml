@@ -1,0 +1,4 @@
+project_id = "dcrstlqjolqgbkfokfyw"
+
+[functions.zarinpal-payment]
+verify_jwt = false

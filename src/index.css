@@ -1,0 +1,228 @@
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Forest Color Palette */
+    --background: 40 30% 97%;
+    --foreground: 150 25% 15%;
+
+    --card: 40 25% 95%;
+    --card-foreground: 150 25% 15%;
+
+    --popover: 40 30% 97%;
+    --popover-foreground: 150 25% 15%;
+
+    /* Deep Forest Green */
+    --primary: 150 35% 25%;
+    --primary-foreground: 40 30% 97%;
+
+    /* Warm Wood Brown */
+    --secondary: 30 30% 85%;
+    --secondary-foreground: 150 25% 15%;
+
+    --muted: 40 20% 90%;
+    --muted-foreground: 150 15% 40%;
+
+    /* Golden Amber Accent */
+    --accent: 38 70% 50%;
+    --accent-foreground: 150 25% 10%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 150 15% 80%;
+    --input: 150 15% 85%;
+    --ring: 150 35% 25%;
+
+    --radius: 0.75rem;
+
+    /* Custom Forest Colors */
+    --forest-deep: 150 40% 20%;
+    --forest-medium: 150 35% 35%;
+    --forest-light: 150 30% 45%;
+    --wood-dark: 25 40% 25%;
+    --wood-medium: 30 35% 45%;
+    --wood-light: 35 30% 70%;
+    --cream: 40 35% 95%;
+    --cream-dark: 40 25% 88%;
+    --gold: 38 70% 50%;
+    --gold-light: 42 65% 65%;
+
+    /* Gradients */
+    --gradient-forest: linear-gradient(135deg, hsl(150 40% 20%) 0%, hsl(150 35% 35%) 100%);
+    --gradient-overlay: linear-gradient(180deg, hsla(150 40% 10% / 0.6) 0%, hsla(150 40% 10% / 0.3) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(40 30% 97%) 0%, hsl(40 25% 93%) 100%);
+
+    /* Shadows */
+    --shadow-soft: 0 4px 20px -4px hsla(150 40% 20% / 0.15);
+    --shadow-medium: 0 8px 30px -6px hsla(150 40% 20% / 0.2);
+    --shadow-card: 0 4px 16px -2px hsla(150 40% 20% / 0.1);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 150 30% 8%;
+    --foreground: 40 30% 95%;
+
+    --card: 150 25% 12%;
+    --card-foreground: 40 30% 95%;
+
+    --popover: 150 30% 8%;
+    --popover-foreground: 40 30% 95%;
+
+    --primary: 150 35% 45%;
+    --primary-foreground: 150 30% 8%;
+
+    --secondary: 30 20% 20%;
+    --secondary-foreground: 40 30% 95%;
+
+    --muted: 150 20% 15%;
+    --muted-foreground: 40 20% 65%;
+
+    --accent: 38 70% 50%;
+    --accent-foreground: 150 30% 8%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 150 20% 20%;
+    --input: 150 20% 20%;
+    --ring: 150 35% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-family: 'Vazirmatn', system-ui, sans-serif;
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html[dir="rtl"] {
+    direction: rtl;
+  }
+
+  html[dir="ltr"] {
+    direction: ltr;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Mobile touch improvements */
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    touch-action: manipulation;
+  }
+
+  /* Prevent zoom on input focus for iOS */
+  @supports (-webkit-touch-callout: none) {
+
+    input,
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-card/80 backdrop-blur-md border border-border/50;
+    box-shadow: var(--shadow-card);
+  }
+
+  .forest-gradient {
+    background: var(--gradient-forest);
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background: var(--gradient-forest);
+  }
+
+  .hover-lift {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-medium);
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out forwards;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.4s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+/* RTL Table Styling */
+table[dir="rtl"] th,
+table[dir="rtl"] td {
+  text-align: right;
+}
