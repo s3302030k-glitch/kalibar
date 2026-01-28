@@ -94,6 +94,7 @@
       "submitting": "در حال ارسال...",
       "successTitle": "نظر شما ثبت شد",
       "successMessage": "نظر شما پس از تأیید مدیر نمایش داده خواهد شد",
+      "thankYouMessage": "از ثبت نظر شما سپاسگزاریم!",
       "errorTitle": "خطا",
       "errorMessage": "مشکلی در ثبت نظر پیش آمد"
     }

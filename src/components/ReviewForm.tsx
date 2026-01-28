@@ -54,7 +54,7 @@ const ReviewForm = ({ onSuccess }: ReviewFormProps) => {
         comment: comment.trim(),
       });
 
-      toast.success(t("reviews.form.successMessage"));
+      toast.success(t("reviews.form.thankYouMessage") || "از ثبت نظر شما سپاسگزاریم!");
 
       // Reset form
       setGuestName("");
@@ -64,8 +64,13 @@ const ReviewForm = ({ onSuccess }: ReviewFormProps) => {
       setComment("");
 
       onSuccess?.();
-    } catch (error) {
-      toast.error(t("reviews.form.errorMessage"));
+    } catch (error: any) {
+      console.error("Error submitting review:", error);
+      if (error.message?.includes("reviews_comment_check") || error.details?.includes("reviews_comment_check")) {
+        toast.error("متن نظر باید حداقل ۱۰ کاراکتر باشد.");
+      } else {
+        toast.error(error.message || t("reviews.form.errorMessage"));
+      }
     }
   };
 
@@ -129,8 +134,8 @@ const ReviewForm = ({ onSuccess }: ReviewFormProps) => {
             >
               <Star
                 className={`w-8 h-8 ${star <= (hoverRating || rating)
-                    ? "text-gold fill-gold"
-                    : "text-muted-foreground"
+                  ? "text-gold fill-gold"
+                  : "text-muted-foreground"
                   }`}
               />
             </button>

@@ -56,8 +56,8 @@ const AdminLogin = () => {
         <div className="glass-card rounded-2xl p-8 shadow-medium">
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 mb-4">
-              <div className="p-3 bg-forest-medium/10 rounded-xl">
-                <TreePine className="w-8 h-8 text-forest-medium" />
+              <div className="inline-flex items-center gap-2 mb-4">
+                <img src="/logo.png" alt="Arasbaran Logo" className="w-20 h-20 object-contain drop-shadow-md" />
               </div>
             </div>
             <h1 className="text-2xl font-bold text-forest-deep mb-2">

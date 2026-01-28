@@ -131,6 +131,42 @@ export type Database = {
           }
         ]
       }
+      coupons: {
+        Row: {
+          id: string
+          code: string
+          discount_type: 'percent' | 'fixed'
+          discount_value: number
+          max_uses: number | null
+          used_count: number
+          expires_at: string | null
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          code: string
+          discount_type: 'percent' | 'fixed'
+          discount_value: number
+          max_uses?: number | null
+          used_count?: number
+          expires_at?: string | null
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          code?: string
+          discount_type?: 'percent' | 'fixed'
+          discount_value?: number
+          max_uses?: number | null
+          used_count?: number
+          expires_at?: string | null
+          is_active?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
       daily_prices: {
         Row: {
           id: string
@@ -487,6 +523,7 @@ export type Database = {
           p_check_in: string
           p_check_out: string
           p_payment_method?: PaymentMethod
+          p_coupon_code?: string
         }
         Returns: Json
       }
@@ -499,6 +536,13 @@ export type Database = {
           price_irr: number
           price_usd: number
         }[]
+      }
+      validate_coupon: {
+        Args: {
+          p_code: string
+          p_total_amount: number
+        }
+        Returns: Json
       }
       has_role: {
         Args: {
@@ -549,6 +593,9 @@ export type Notification = Tables<'notifications'>
 export type Setting = Tables<'settings'>
 export type BlockedDate = Tables<'blocked_dates'>
 export type UserRole = Tables<'user_roles'>
+export type Coupon = Tables<'coupons'>
+export type CouponInsert = TablesInsert<'coupons'>
+export type CouponUpdate = TablesUpdate<'coupons'>
 
 // Create reservation response type
 export type CreateReservationResponse = {

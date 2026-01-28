@@ -16,10 +16,10 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Users, Phone, User, CheckCircle, Loader2, CalendarIcon, AlertCircle, CreditCard, Wallet, Bitcoin } from "lucide-react";
+import { Users, Phone, User, CheckCircle, Loader2, CalendarIcon, AlertCircle, CreditCard, Wallet, Bitcoin, Ticket, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useCabinBookedDates, isDateBooked, useCreateReservation } from "@/hooks/useBooking";
+import { useCabinBookedDates, isDateBooked, useCreateReservation, useValidateCoupon } from "@/hooks/useBooking";
 import { useCalculatePrice } from "@/hooks/useBooking";
 import { differenceInDays, format, addDays, startOfDay } from "date-fns";
 import { cn, toPersianDigits } from "@/lib/utils";
@@ -54,6 +54,11 @@ const BookingModal = ({ cabin, isOpen, onClose }: BookingModalProps) => {
     guests: "2",
   });
 
+  // Coupon State
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; amount: number; type: string } | null>(null);
+  const [couponError, setCouponError] = useState("");
+
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
   const { data = { bookedDates: [], startDates: [] } } = useCabinBookedDates(cabin?.id);
@@ -61,6 +66,7 @@ const BookingModal = ({ cabin, isOpen, onClose }: BookingModalProps) => {
 
   const { data: priceData } = useCalculatePrice(cabin?.id, checkInDate, checkOutDate);
   const { mutateAsync: createReservation, isPending: isCreating } = useCreateReservation();
+  const { mutateAsync: validateCoupon, isPending: isValidatingCoupon } = useValidateCoupon();
 
   const cabinName = cabin ? (isRTL ? cabin.name_fa : cabin.name_en) : "";
 
@@ -144,6 +150,7 @@ const BookingModal = ({ cabin, isOpen, onClose }: BookingModalProps) => {
         checkIn: checkInDate,
         checkOut: checkOutDate,
         paymentMethod: dbPaymentMethod,
+        couponCode: appliedCoupon?.code,
       });
 
 
@@ -234,8 +241,54 @@ const BookingModal = ({ cabin, isOpen, onClose }: BookingModalProps) => {
     setCheckInDate(undefined);
     setCheckOutDate(undefined);
     setPaymentMethod(isRTL ? "online" : "paypal");
+    setCouponCode("");
+    setAppliedCoupon(null);
+    setCouponError("");
     onClose();
   };
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode) return;
+    setCouponError("");
+
+    try {
+      const result = await validateCoupon({
+        code: couponCode,
+        totalAmount: displayPrice,
+      });
+
+      if (result.valid) {
+        setAppliedCoupon({
+          code: result.code || couponCode,
+          amount: result.discount_amount || 0,
+          type: result.type || 'fixed'
+        });
+        toast.success(isRTL ? "کد تخفیف اعمال شد" : "Discount applied successfully");
+      } else {
+        setAppliedCoupon(null);
+        const errorMsg = result.message || (isRTL ? "کد معتبر نیست" : "Invalid coupon code");
+        setCouponError(errorMsg);
+        toast.error(errorMsg);
+      }
+    } catch (error) {
+      const errorMsg = isRTL ? "خطا در بررسی کد تخفیف" : "Error validating coupon";
+      setCouponError(errorMsg);
+      toast.error(errorMsg);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+  };
+
+  // Reset coupon if dates/price change
+  useMemo(() => {
+    if (appliedCoupon) {
+      setAppliedCoupon(null);
+      toast.info(isRTL ? "با تغییر تاریخ، کد تخفیف حذف شد. لطفا مجدداً اعمال کنید." : "Date changed, coupon removed. Please re-apply.");
+    }
+  }, [totalPrice, totalPriceUSD]);
 
   const formatPriceLocal = (price: number) => {
     return new Intl.NumberFormat(isRTL ? "fa-IR" : "en-US").format(price);
@@ -414,8 +467,8 @@ const BookingModal = ({ cabin, isOpen, onClose }: BookingModalProps) => {
 
             {/* Price Summary */}
             {nights > 0 && (
-              <div className="p-3 sm:p-4 bg-forest-medium/10 rounded-xl">
-                <div className="flex justify-between items-center text-xs sm:text-sm mb-2">
+              <div className="p-3 sm:p-4 bg-forest-medium/10 rounded-xl space-y-2">
+                <div className="flex justify-between items-center text-xs sm:text-sm">
                   <span className="text-muted-foreground">
                     {isRTL ? "" : "$"}{formatPriceLocal(unitPrice || 0)} × {isRTL ? toPersianDigits(nights) : nights} {t("booking.nights")}
                   </span>
@@ -423,9 +476,25 @@ const BookingModal = ({ cabin, isOpen, onClose }: BookingModalProps) => {
                     {isRTL ? "" : "$"}{formatPriceLocal(displayPrice)} {isRTL && t("cabins.toman")}
                   </span>
                 </div>
+
+                {/* Discount Row */}
+                {appliedCoupon && (
+                  <div className="flex justify-between items-center text-xs sm:text-sm text-green-600">
+                    <span className="flex items-center gap-1">
+                      <Ticket className="w-3 h-3" />
+                      {isRTL ? "تخفیف" : "Discount"} ({appliedCoupon.code})
+                    </span>
+                    <span>
+                      - {isRTL ? "" : "$"}{formatPriceLocal(appliedCoupon.amount)} {isRTL && t("cabins.toman")}
+                    </span>
+                  </div>
+                )}
+
                 <div className="flex justify-between items-center font-bold text-base sm:text-lg border-t border-border pt-2">
                   <span className="text-forest-deep">{t("booking.totalPrice")}</span>
-                  <span className="text-forest-medium">{isRTL ? "" : "$"}{formatPriceLocal(displayPrice)} {isRTL && t("cabins.toman")}</span>
+                  <span className="text-forest-medium">
+                    {isRTL ? "" : "$"}{formatPriceLocal(displayPrice - (appliedCoupon?.amount || 0))} {isRTL && t("cabins.toman")}
+                  </span>
                 </div>
               </div>
             )}
@@ -497,6 +566,51 @@ const BookingModal = ({ cabin, isOpen, onClose }: BookingModalProps) => {
                   className="rounded-lg h-10 sm:h-11 text-sm"
                 />
               </div>
+
+              {/* Coupon Code Input */}
+              {nights > 0 && (
+                <div>
+                  <Label htmlFor="coupon" className="text-xs sm:text-sm font-medium mb-2 block">
+                    <Ticket className="w-3 h-3 sm:w-4 sm:h-4 inline mx-1" />
+                    {isRTL ? "کد تخفیف" : "Discount Code"}
+                  </Label>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Input
+                        id="coupon"
+                        value={couponCode}
+                        onChange={(e) => {
+                          setCouponCode(e.target.value.toUpperCase());
+                          setCouponError("");
+                        }}
+                        placeholder={isRTL ? "کد تخفیف را وارد کنید" : "Enter discount code"}
+                        className={cn("rounded-lg h-10 sm:h-11 text-sm uppercase", couponError ? "border-red-500" : "")}
+                        disabled={!!appliedCoupon}
+                      />
+                      {couponError && <p className="text-xs text-red-500 mt-1 absolute">{couponError}</p>}
+                    </div>
+                    {appliedCoupon ? (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        onClick={removeCoupon}
+                        className="h-10 sm:h-11 px-3"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        onClick={handleApplyCoupon}
+                        disabled={!couponCode || isValidatingCoupon}
+                        className="h-10 sm:h-11 bg-secondary text-primary hover:bg-secondary/80"
+                      >
+                        {isValidatingCoupon ? <Loader2 className="w-4 h-4 animate-spin" /> : (isRTL ? "اعمال" : "Apply")}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Payment Method */}
               <div>
@@ -623,7 +737,7 @@ const BookingModal = ({ cabin, isOpen, onClose }: BookingModalProps) => {
               </p>
             )}
             <p className="text-xs sm:text-sm text-forest-medium font-medium mb-4 sm:mb-6">
-              {t("booking.totalToPay")}: {isRTL ? "" : "$"}{formatPriceLocal(displayPrice)} {isRTL && t("cabins.toman")}
+              {t("booking.totalToPay")}: {isRTL ? "" : "$"}{formatPriceLocal(Math.max(0, displayPrice - (appliedCoupon?.amount || 0)))} {isRTL && t("cabins.toman")}
             </p>
             <Button
               onClick={handleClose}

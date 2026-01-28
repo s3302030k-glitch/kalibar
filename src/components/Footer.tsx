@@ -6,20 +6,18 @@ const Footer = () => {
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
 
-  const quickLinks = isRTL 
+  const quickLinks = isRTL
     ? ["قوانین و مقررات", "سوالات متداول", "درباره ما"]
     : ["Terms & Conditions", "FAQ", "About Us"];
 
   return (
-    <footer className="bg-forest-deep text-primary-foreground py-16">
+    <footer id="contact" className="bg-forest-deep text-primary-foreground py-16">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {/* Logo & Description */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="p-2 bg-primary-foreground/10 rounded-xl">
-                <TreePine className="w-6 h-6 text-gold" />
-              </div>
+              <img src="/logo.png" alt="Arasbaran Logo" className="w-10 h-10 object-contain brightness-0 invert" />
               <span className="text-xl font-bold">
                 {isRTL ? "اقامتگاه جنگلی ارسباران" : "Arasbaran Forest Lodge"}
               </span>
@@ -60,7 +58,7 @@ const Footer = () => {
                 </li>
               ))}
             </ul>
-            
+
             <div className="flex items-center gap-3">
               <a
                 href="#"
@@ -74,7 +72,7 @@ const Footer = () => {
 
         <div className="border-t border-primary-foreground/20 mt-12 pt-8 text-center text-primary-foreground/60">
           <p>
-            {isRTL 
+            {isRTL
               ? `© ۱۴۰۴ اقامتگاه جنگلی ارسباران. ${t("footer.rights")}`
               : `© 2025 Arasbaran Forest Lodge. ${t("footer.rights")}`
             }

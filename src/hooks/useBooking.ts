@@ -20,6 +20,7 @@ export interface BookingRequest {
     checkIn: Date;
     checkOut: Date;
     paymentMethod: PaymentMethod;
+    couponCode?: string;
 }
 
 export interface PriceCalculation {
@@ -27,6 +28,36 @@ export interface PriceCalculation {
     total_usd: number;
     nights: number;
 }
+
+export interface CouponValidationResponse {
+    valid: boolean;
+    message?: string;
+    code?: string;
+    discount_amount?: number;
+    final_price?: number;
+    type?: 'percent' | 'fixed';
+    value?: number;
+}
+
+// Validate coupon hook
+export const useValidateCoupon = () => {
+    return useMutation({
+        mutationFn: async ({ code, totalAmount }: { code: string; totalAmount: number }): Promise<CouponValidationResponse> => {
+            const { data, error } = await supabase
+                .rpc("validate_coupon", {
+                    p_code: code,
+                    p_total_amount: totalAmount,
+                });
+
+            if (error) {
+                console.error("Error validating coupon:", error);
+                throw error;
+            }
+
+            return data as unknown as CouponValidationResponse;
+        }
+    });
+};
 
 // Fetch reservations for a specific cabin (for availability calendar)
 export const useReservations = (cabinId?: number) => {
@@ -211,6 +242,7 @@ export const useCreateReservation = () => {
                     p_check_in: format(booking.checkIn, "yyyy-MM-dd"),
                     p_check_out: format(booking.checkOut, "yyyy-MM-dd"),
                     p_payment_method: booking.paymentMethod,
+                    p_coupon_code: booking.couponCode,
                 });
 
             if (error) {

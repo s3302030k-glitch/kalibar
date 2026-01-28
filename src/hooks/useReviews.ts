@@ -101,12 +101,10 @@ export const useCreateReview = () => {
           rating: review.rating,
           title: review.title?.trim(),
           comment: review.comment.trim(),
-        })
-        .select()
-        .single();
+        });
 
       if (error) throw error;
-      return data as Review;
+      return {} as Review; // Return empty object as we don't need the data and can't select it due to RLS
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["reviews"] });

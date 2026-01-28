@@ -67,7 +67,7 @@ const Index = () => {
       <Hero onScrollToCabins={scrollToCabins} />
 
       {/* Amenities Section */}
-      <section className="py-20 bg-secondary">
+      <section id="amenities" className="py-20 bg-secondary">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-forest-deep mb-4">
@@ -96,7 +96,7 @@ const Index = () => {
       </section>
 
       {/* Cabins Section */}
-      <section ref={cabinsRef} className="py-20">
+      <section id="cabins" ref={cabinsRef} className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 bg-forest-medium/10 px-4 py-2 rounded-full mb-4">

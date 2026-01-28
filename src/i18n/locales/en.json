@@ -94,6 +94,7 @@
       "submitting": "Submitting...",
       "successTitle": "Review Submitted",
       "successMessage": "Your review will be displayed after admin approval",
+      "thankYouMessage": "Thank you for your review!",
       "errorTitle": "Error",
       "errorMessage": "Failed to submit review"
     }

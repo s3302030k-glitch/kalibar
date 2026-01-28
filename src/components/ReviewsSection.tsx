@@ -13,6 +13,13 @@ import ReviewForm from "@/components/ReviewForm";
 import { useApprovedReviews } from "@/hooks/useReviews";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/hooks/useLanguage";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const ReviewsSection = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -21,7 +28,7 @@ const ReviewsSection = () => {
   const { isRTL } = useLanguage();
 
   return (
-    <section className="py-20 bg-secondary">
+    <section id="reviews" className="py-20 bg-secondary">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 bg-forest-medium/10 px-4 py-2 rounded-full mb-4">
@@ -58,10 +65,25 @@ const ReviewsSection = () => {
             {isRTL ? "در حال بارگذاری نظرات..." : "Loading reviews..."}
           </div>
         ) : reviews && reviews.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {reviews.map((review) => (
-              <ReviewCard key={review.id} review={review} />
-            ))}
+          <div className="mx-auto max-w-6xl px-8">
+            <Carousel
+              opts={{
+                align: "start",
+                direction: isRTL ? "rtl" : "ltr",
+                loop: true,
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {reviews.map((review) => (
+                  <CarouselItem key={review.id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3">
+                    <ReviewCard review={review} />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
           </div>
         ) : (
           <div className="text-center text-muted-foreground py-12">

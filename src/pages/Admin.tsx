@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -23,6 +24,9 @@ import {
   Ban,
   Download,
   UserCog,
+  UserCog,
+  Users,
+  Tag,
 } from "lucide-react";
 import {
   Tabs,
@@ -48,10 +52,13 @@ import {
 import { toast } from "sonner";
 import { useAllReservations, useConfirmReservation, useCancelReservation, useVerifyPayment } from "@/hooks/useBooking";
 import { useAllReviews, useApproveReview, useDeleteReview } from "@/hooks/useReviews";
-import { useUnreadNotificationsCount, useUnreadNotifications, useMarkNotificationRead, getNotificationStyle } from "@/hooks/useNotifications";
+import { useUnreadNotificationsCount, useUnreadNotifications, useMarkNotificationRead, useMarkNotificationReadByReference, getNotificationStyle } from "@/hooks/useNotifications";
 import AdminCabins from "@/components/AdminCabins";
+import AdminCalendar from "@/components/AdminCalendar";
+import AdminStats from "@/components/AdminStats";
 import AdminSeasonalPrices from "@/components/AdminSeasonalPrices";
 import AdminBlockedDates from "@/components/AdminBlockedDates";
+import AdminCoupons from "@/components/AdminCoupons";
 import { AdminUsers } from "@/components/AdminUsers";
 import {
   AlertDialog,
@@ -94,6 +101,7 @@ const Admin = () => {
   const { data: unreadNotifications, isLoading: notificationsLoading } = useUnreadNotifications();
   const { data: unreadCount } = useUnreadNotificationsCount();
   const markAsRead = useMarkNotificationRead();
+  const markNotificationReadByReference = useMarkNotificationReadByReference();
 
   const approveReview = useApproveReview();
   const deleteReview = useDeleteReview();
@@ -148,6 +156,9 @@ const Admin = () => {
   const handleApproveReview = async (id: string, approve: boolean) => {
     try {
       await approveReview.mutateAsync({ id, is_approved: approve });
+      if (approve) {
+        await markNotificationReadByReference.mutateAsync({ recordId: id, type: 'new_review' });
+      }
       toast.success(approve ? "نظر تأیید شد" : "تأیید نظر لغو شد");
     } catch (error) {
       toast.error("خطا در انجام عملیات");
@@ -167,6 +178,7 @@ const Admin = () => {
   const handleConfirmReservation = async (id: string) => {
     try {
       await confirmReservation.mutateAsync(id);
+      await markNotificationReadByReference.mutateAsync({ recordId: id, type: 'new_reservation' });
       toast.success("رزرو تأیید شد");
     } catch (error) {
       toast.error("خطا در تأیید رزرو");
@@ -188,6 +200,7 @@ const Admin = () => {
     if (!reference) return;
     try {
       await verifyPayment.mutateAsync({ id, reference });
+      await markNotificationReadByReference.mutateAsync({ recordId: id, type: 'new_reservation' });
       toast.success("پرداخت تأیید و رزرو تکمیل شد");
     } catch (error) {
       toast.error("خطا در تأیید پرداخت");
@@ -248,8 +261,8 @@ const Admin = () => {
       <header className="bg-forest-deep text-primary-foreground py-4 px-6 shadow-medium">
         <div className="container mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary-foreground/10 rounded-xl">
-              <TreePine className="w-6 h-6 text-gold" />
+            <div className="p-1 bg-white/10 rounded-xl backdrop-blur-sm">
+              <img src="/logo.png" alt="Admin Logo" className="w-8 h-8 object-contain brightness-0 invert" />
             </div>
             <div>
               <h1 className="font-bold">پنل مدیریت</h1>
@@ -295,7 +308,7 @@ const Admin = () => {
                           }
                         }}
                       >
-                        <div className={`p-2 rounded-full flex-shrink-0 ${style.bg}`}>
+                        <div className={`p-2 rounded-full flex-shrink-0 ${style.bg} `}>
                           <span className="text-lg">{style.icon}</span>
                         </div>
                         <div className="flex-1 space-y-1">
@@ -326,7 +339,7 @@ const Admin = () => {
               variant="outline"
               size="sm"
               onClick={handleSignOut}
-              className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10"
+              className="bg-white/10 text-white border-white/20 hover:bg-white/20"
             >
               <LogOut className="w-4 h-4 ml-2" />
               خروج
@@ -336,9 +349,9 @@ const Admin = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto py-8 px-4">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-6 flex-wrap">
+      <main className="container mx-auto py-8 px-4" dir="rtl">
+        <Tabs value={activeTab} onValueChange={setActiveTab} dir="rtl">
+          <TabsList className="mb-6 flex-wrap w-full justify-start h-auto p-1 bg-muted/50">
             <TabsTrigger value="reservations" className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
               رزروها ({reservations?.length || 0})
@@ -346,6 +359,18 @@ const Admin = () => {
             <TabsTrigger value="cabins" className="flex items-center gap-2">
               <Home className="w-4 h-4" />
               کلبه‌ها
+            </TabsTrigger>
+            <TabsTrigger value="calendar" className="flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              تقویم رزروها
+            </TabsTrigger>
+            <TabsTrigger value="reports" className="flex items-center gap-2">
+              <Settings className="w-4 h-4" /> {/* Using Settings icon for now or use BarChart if available */}
+              گزارشات
+            </TabsTrigger>
+            <TabsTrigger value="users" className="flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              کاربران
             </TabsTrigger>
             <TabsTrigger value="seasonal-prices" className="flex items-center gap-2">
               <DollarSign className="w-4 h-4" />
@@ -355,16 +380,15 @@ const Admin = () => {
               <Ban className="w-4 h-4" />
               روزهای بسته
             </TabsTrigger>
+            <TabsTrigger value="discounts" className="flex items-center gap-2">
+              <Tag className="w-4 h-4" />
+              تخفیف‌ها
+            </TabsTrigger>
             <TabsTrigger value="reviews" className="flex items-center gap-2">
               <MessageSquare className="w-4 h-4" />
               نظرات ({reviews?.length || 0})
             </TabsTrigger>
-            {userRole === 'super_admin' && (
-              <TabsTrigger value="users" className="flex items-center gap-2">
-                <UserCog className="w-4 h-4" />
-                کاربران
-              </TabsTrigger>
-            )}
+
           </TabsList>
 
           {/* Reservations Tab */}
@@ -445,20 +469,20 @@ const Admin = () => {
                         </TableCell>
                         <TableCell>
                           <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusBadge(reservation.status).variant === "default"
+                            className={`px - 2 py - 1 rounded - full text - xs font - medium border ${getStatusBadge(reservation.status).variant === "default"
                               ? "bg-primary text-primary-foreground border-transparent"
                               : getStatusBadge(reservation.status).variant === "destructive"
                                 ? "bg-destructive text-destructive-foreground border-transparent"
                                 : getStatusBadge(reservation.status).variant === "outline"
                                   ? "text-foreground border-border"
                                   : "bg-secondary text-secondary-foreground border-transparent"
-                              }`}
+                              } `}
                           >
                             {getStatusBadge(reservation.status).label}
                           </span>
                         </TableCell>
                         <TableCell>
-                          <span className={`text-xs ${getPaymentBadge(reservation.payment_status).color}`}>
+                          <span className={`text - xs ${getPaymentBadge(reservation.payment_status).color} `}>
                             {getPaymentBadge(reservation.payment_status).label}
                           </span>
                         </TableCell>
@@ -511,6 +535,16 @@ const Admin = () => {
             <AdminCabins />
           </TabsContent>
 
+          {/* Calendar Tab */}
+          <TabsContent value="calendar">
+            <AdminCalendar />
+          </TabsContent>
+
+          {/* Reports Tab */}
+          <TabsContent value="reports">
+            <AdminStats />
+          </TabsContent>
+
           {/* Seasonal Prices Tab */}
           <TabsContent value="seasonal-prices">
             <AdminSeasonalPrices />
@@ -519,6 +553,11 @@ const Admin = () => {
           {/* Blocked Dates Tab */}
           <TabsContent value="blocked-dates">
             <AdminBlockedDates />
+          </TabsContent>
+
+          {/* Discounts Tab */}
+          <TabsContent value="discounts">
+            <AdminCoupons />
           </TabsContent>
 
           {/* Reviews Tab */}

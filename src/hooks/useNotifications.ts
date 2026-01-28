@@ -169,6 +169,28 @@ export const useRealtimeNotifications = (onNewNotification?: (notification: Noti
     }, [queryClient, onNewNotification]);
 };
 
+// Mark notification as read by reference ID (reservation_id or review_id)
+export const useMarkNotificationReadByReference = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({ recordId, type }: { recordId: string; type?: string }) => {
+            const { error } = await supabase
+                .rpc("mark_notification_read_by_reference", {
+                    p_record_id: recordId,
+                    p_type: type || null,
+                });
+
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["notifications"] });
+            queryClient.invalidateQueries({ queryKey: ["notifications", "unread"] });
+            queryClient.invalidateQueries({ queryKey: ["notifications", "unread", "count"] });
+        },
+    });
+};
+
 // Get notification icon and color based on type
 export const getNotificationStyle = (type: string) => {
     switch (type) {

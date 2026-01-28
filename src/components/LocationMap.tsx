@@ -9,12 +9,12 @@ const LocationMap = () => {
   // Coordinates: 38°51'52.4"N 47°03'25.3"E
   const lat = 38.864556;
   const lng = 47.057028;
-  
+
   const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.02}%2C${lat - 0.01}%2C${lng + 0.02}%2C${lat + 0.01}&layer=mapnik&marker=${lat}%2C${lng}`;
   const fullMapUrl = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=15/${lat}/${lng}`;
 
   return (
-    <section className="py-20 bg-secondary">
+    <section id="location" className="py-20 bg-secondary">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 bg-forest-medium/10 px-4 py-2 rounded-full mb-4">
@@ -55,7 +55,7 @@ const LocationMap = () => {
           {/* Location Info */}
           <div className="glass-card rounded-2xl p-8 flex flex-col justify-center">
             <h3 className="text-xl font-bold text-forest-deep mb-6">{t("location.routeInfo")}</h3>
-            
+
             <div className="space-y-4">
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 bg-forest-medium/10 rounded-xl flex items-center justify-center flex-shrink-0">

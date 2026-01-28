@@ -13,7 +13,7 @@ const Hero = ({ onScrollToCabins }: HeroProps) => {
   const { isRTL } = useLanguage();
 
   return (
-    <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
+    <section id="hero" className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0">
         <img
@@ -23,7 +23,7 @@ const Hero = ({ onScrollToCabins }: HeroProps) => {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-foreground/50 via-foreground/30 to-foreground/70" />
       </div>
-      
+
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 text-center">
         <div className="animate-slide-up">
@@ -33,20 +33,20 @@ const Hero = ({ onScrollToCabins }: HeroProps) => {
               {t("hero.badge")}
             </span>
           </div>
-          
+
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-primary-foreground mb-6 leading-tight">
             {t("hero.title1")}
             <br />
             <span className="text-gold">{t("hero.title2")}</span>
             {t("hero.title3") && <> {t("hero.title3")}</>}
           </h1>
-          
+
           <p className="text-lg md:text-xl text-primary-foreground/90 max-w-2xl mx-auto mb-8">
             {t("hero.subtitle")}
             <br />
             {t("hero.subtitle2")}
           </p>
-          
+
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
             <Button
               size="lg"
@@ -56,10 +56,11 @@ const Hero = ({ onScrollToCabins }: HeroProps) => {
               <Calendar className={`w-5 h-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
               {t("hero.bookOnline")}
             </Button>
-            
+
             <Button
               variant="outline"
               size="lg"
+              onClick={() => document.getElementById('location')?.scrollIntoView({ behavior: 'smooth' })}
               className="bg-primary-foreground/20 backdrop-blur-sm border-gold/50 text-gold hover:bg-primary-foreground/30 hover:border-gold px-8 py-6 text-lg rounded-xl"
             >
               <MapPin className={`w-5 h-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
@@ -67,7 +68,7 @@ const Hero = ({ onScrollToCabins }: HeroProps) => {
             </Button>
           </div>
         </div>
-        
+
         {/* Stats */}
         <div className="animate-fade-in grid grid-cols-3 gap-4 max-w-lg mx-auto">
           {[
@@ -89,7 +90,7 @@ const Hero = ({ onScrollToCabins }: HeroProps) => {
           ))}
         </div>
       </div>
-      
+
       {/* Scroll Indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
         <div className="w-6 h-10 border-2 border-primary-foreground/50 rounded-full flex justify-center">

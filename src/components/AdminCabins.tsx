@@ -39,6 +39,18 @@ import {
 } from "@/hooks/useCabins";
 import type { Cabin, CabinInsert, CabinUpdate } from "@/integrations/supabase/types";
 import { toast } from "sonner";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+
+// Extended type to support new column until types are regenerated
+type ExtendedCabin = Cabin & {
+    cleaning_status?: 'clean' | 'dirty' | 'cleaning';
+};
 
 interface CabinFormData {
     name_fa: string;
@@ -204,6 +216,19 @@ const AdminCabins = () => {
             console.error("Error toggling availability:", error);
             toast.error("خطا در تغییر وضعیت");
         }
+    }; // Added missing closing brace here
+
+    const handleStatusChange = async (cabinId: number, status: string) => {
+        try {
+            await updateCabin.mutateAsync({
+                id: cabinId,
+                updates: { cleaning_status: status } as any // Cast as any until types update
+            });
+            toast.success("وضعیت نظافت به‌روز شد");
+        } catch (error) {
+            console.error("Error updating cleaning status:", error);
+            toast.error("خطا در تغییر وضعیت نظافت");
+        }
     };
 
     if (isLoading) {
@@ -243,7 +268,8 @@ const AdminCabins = () => {
                             <TableHead>ظرفیت</TableHead>
                             <TableHead>متراژ</TableHead>
                             <TableHead>قیمت (تومان)</TableHead>
-                            <TableHead>وضعیت</TableHead>
+                            <TableHead>وضعیت نظافت</TableHead>
+                            <TableHead>وضعیت رزرو</TableHead>
                             <TableHead>عملیات</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -259,6 +285,25 @@ const AdminCabins = () => {
                                 <TableCell>{cabin.capacity.toLocaleString("fa-IR")} نفر</TableCell>
                                 <TableCell>{cabin.size_sqm.toLocaleString("fa-IR")} متر</TableCell>
                                 <TableCell>{formatPrice(cabin.base_price_irr)}</TableCell>
+                                <TableCell>
+                                    <Select
+                                        defaultValue={(cabin as ExtendedCabin).cleaning_status || 'clean'}
+                                        onValueChange={(val) => handleStatusChange(cabin.id, val)}
+                                        dir="rtl"
+                                    >
+                                        <SelectTrigger className={`w-[130px] h-8 ${(cabin as ExtendedCabin).cleaning_status === 'dirty' ? 'bg-red-50 text-red-600 border-red-200' :
+                                            (cabin as ExtendedCabin).cleaning_status === 'cleaning' ? 'bg-yellow-50 text-yellow-600 border-yellow-200' :
+                                                'bg-green-50 text-green-600 border-green-200'
+                                            }`}>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="clean">تمیز</SelectItem>
+                                            <SelectItem value="dirty">نیاز به نظافت</SelectItem>
+                                            <SelectItem value="cleaning">در حال نظافت</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </TableCell>
                                 <TableCell>
                                     <div dir="ltr" className="flex justify-end pr-4">
                                         <Switch

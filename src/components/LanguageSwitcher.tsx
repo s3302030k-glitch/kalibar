@@ -2,7 +2,13 @@ import { Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/useLanguage";
 
-const LanguageSwitcher = () => {
+import { cn } from "@/lib/utils";
+
+interface LanguageSwitcherProps {
+  className?: string;
+}
+
+const LanguageSwitcher = ({ className }: LanguageSwitcherProps) => {
   const { currentLanguage, toggleLanguage } = useLanguage();
 
   return (
@@ -10,7 +16,11 @@ const LanguageSwitcher = () => {
       variant="ghost"
       size="sm"
       onClick={toggleLanguage}
-      className="flex items-center gap-2 text-foreground hover:bg-forest-medium/10"
+      onClick={toggleLanguage}
+      className={cn(
+        "flex items-center gap-2 hover:bg-forest-medium/10 transition-colors",
+        className
+      )}
     >
       <Globe className="w-4 h-4" />
       <span className="font-medium">
