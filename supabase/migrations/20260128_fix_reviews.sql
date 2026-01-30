@@ -12,7 +12,10 @@ CREATE POLICY "Anyone can create reviews" ON public.reviews
 
 -- 2. Create Function to handle new review notifications
 CREATE OR REPLACE FUNCTION public.handle_new_review()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER 
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
 DECLARE
     v_cabin_name TEXT;
 BEGIN

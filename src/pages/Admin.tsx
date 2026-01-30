@@ -24,7 +24,6 @@ import {
   Ban,
   Download,
   UserCog,
-  UserCog,
   Users,
   Tag,
 } from "lucide-react";
@@ -284,7 +283,7 @@ const Admin = () => {
                   )}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-80 max-h-96 overflow-y-auto" dir="rtl">
+              <DropdownMenuContent align="end" className="w-80 max-h-96 overflow-y-auto">
                 <div className="flex items-center justify-between p-2 border-b">
                   <span className="font-bold text-sm">اعلان‌های جدید</span>
                   <span className="text-xs text-muted-foreground">{unreadCount || 0} مورد</span>

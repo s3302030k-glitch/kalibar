@@ -135,7 +135,10 @@ export const useDeleteNotification = () => {
     });
 };
 
-// Real-time notifications subscription hook
+/*
+// Real-time notifications subscription hook (DISABLED FOR PERFORMANCE)
+// This hook listens to ALL notification changes without filters, which is heavy.
+// Use simpler polling (useUnreadNotificationsCount) or targeted subscriptions instead.
 export const useRealtimeNotifications = (onNewNotification?: (notification: Notification) => void) => {
     const queryClient = useQueryClient();
 
@@ -168,6 +171,7 @@ export const useRealtimeNotifications = (onNewNotification?: (notification: Noti
         };
     }, [queryClient, onNewNotification]);
 };
+*/
 
 // Mark notification as read by reference ID (reservation_id or review_id)
 export const useMarkNotificationReadByReference = () => {
@@ -176,7 +180,7 @@ export const useMarkNotificationReadByReference = () => {
     return useMutation({
         mutationFn: async ({ recordId, type }: { recordId: string; type?: string }) => {
             const { error } = await supabase
-                .rpc("mark_notification_read_by_reference", {
+                .rpc("mark_notification_read_by_reference" as any, {
                     p_record_id: recordId,
                     p_type: type || null,
                 });

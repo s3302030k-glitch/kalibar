@@ -37,6 +37,7 @@ CREATE OR REPLACE FUNCTION public.validate_coupon(
 RETURNS JSONB
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public, pg_temp
 AS $$
 DECLARE
     v_coupon RECORD;
@@ -97,7 +98,7 @@ CREATE OR REPLACE FUNCTION public.create_reservation(
 RETURNS JSONB
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, pg_temp
 AS $$
 DECLARE
     v_is_available BOOLEAN;

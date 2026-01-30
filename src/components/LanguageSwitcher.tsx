@@ -16,7 +16,6 @@ const LanguageSwitcher = ({ className }: LanguageSwitcherProps) => {
       variant="ghost"
       size="sm"
       onClick={toggleLanguage}
-      onClick={toggleLanguage}
       className={cn(
         "flex items-center gap-2 hover:bg-forest-medium/10 transition-colors",
         className

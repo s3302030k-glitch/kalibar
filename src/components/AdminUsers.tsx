@@ -131,7 +131,7 @@ export const AdminUsers = () => {
     const resetPasswordMutation = useMutation({
         mutationFn: async ({ userId, password }: { userId: string; password: string }) => {
             if (!supabaseAdmin) {
-                throw new Error("Admin client not configured. Please add VITE_SUPABASE_SERVICE_ROLE_KEY to .env");
+                throw new Error("Admin client not configured. Admin operations are disabled on the client for security.");
             }
 
             const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
